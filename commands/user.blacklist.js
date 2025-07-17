@@ -1,22 +1,16 @@
-const fs = require('fs');
+const { addUserToBlacklist } = require('../utils/json-handler');
 
 module.exports = {
     name: 'user.blacklist',
     description: 'Blacklists a user.',
     prefix: '#',
     ownerOnly: true,
-    async execute(msg, args, blacklist_user) {
+    async execute(msg, args) {
         if (args.length === 0) {
-            await msg.channel.send({ content: `> Falta agregar un ID de usuario.` });
-            return;
-        };
-        let usuario_id = args[0];
-        blacklist_user.push(usuario_id);
-        let blacklist_users_json = fs.readFileSync("blacklist_users.json", 'utf-8');
-        let ae = JSON.parse(blacklist_users_json);
-        let xdxd = JSON.stringify(ae);
-        let xd = xdxd.replace("]", "");
-        let asd = `${xd}\n,{"id":"${usuario_id}"}]`;
-        fs.writeFileSync('blacklist_users.json', asd);
+            return msg.channel.send({ content: '> You need to provide a user ID.' });
+        }
+        const userId = args[0];
+        addUserToBlacklist(userId);
+        await msg.channel.send({ content: `> User with ID ${userId} has been blacklisted.` });
     }
 };
